@@ -6,6 +6,7 @@ tags: ["speculative-decoding", "llm-inference", "deepseek"]
 description: "How DeepSeek's DSpark combines semi-autoregressive drafting and confidence-scheduled verification to cut per-user LLM generation latency by 57-85% with zero quality loss."
 summary: "A breakdown of DeepSeek's DSpark speculative-decoding serving framework: semi-autoregressive drafting fixes suffix decay, and confidence-scheduled, hardware-aware verification balances per-user latency against fleet-wide throughput."
 showTableOfContents: true
+featureAlt: "DeepSeek DSpark logo on a dark background with a neural network pattern"
 ---
 
 {{< katex >}}
