@@ -1,0 +1,11 @@
+baseURL = "https://alainfidahoussen.github.io/"
+locale = "en-us"
+defaultContentLanguage = "en"
+theme = "congo"
+
+enableRobotsTXT = true
+enableGitInfo = true
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"

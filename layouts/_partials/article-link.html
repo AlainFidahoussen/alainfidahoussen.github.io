@@ -1,0 +1,42 @@
+{{- $images := $.Resources.ByType "image" }}
+{{- $thumbnail := $images.GetMatch (.Params.thumbnail | default "*thumb*") }}
+{{- $feature := $images.GetMatch (.Params.feature | default "*feature*") | default $thumbnail }}
+<article class="post-card">
+  <a
+    class="post-card__thumb-link"
+    href="{{ with .Params.externalUrl }}{{ . }}{{ else }}{{ .Permalink }}{{ end }}"
+    aria-label="{{ .Title | emojify }}"
+  >
+    {{- with $feature }}
+      <img
+        class="post-card__thumb"
+        alt="{{ $.Params.featureAlt | default $.Params.thumbnailAlt | default "" }}"
+        srcset="{{ (.Fill "640x360 smart").Permalink }} 1x, {{ (.Fill "1280x720 smart").Permalink }} 2x"
+        src="{{ (.Fill "640x360 smart").Permalink }}"
+        width="640"
+        height="360"
+        {{ if $.Site.Params.enableImageLazyLoading | default true }}
+          loading="lazy"
+        {{ end }}
+      />
+    {{- else }}
+      <span class="post-card__thumb post-card__thumb--placeholder" aria-hidden="true"></span>
+    {{- end }}
+  </a>
+  <div class="post-card__body">
+    {{- with .Params.categories }}
+      <span class="post-card__category">{{ delimit . ", " }}</span>
+    {{- end }}
+    <h3 class="post-card__title">
+      <a href="{{ with .Params.externalUrl }}{{ . }}{{ else }}{{ .Permalink }}{{ end }}"
+        >{{ .Title | emojify }}</a
+      >
+    </h3>
+    <div class="post-card__meta">
+      {{ partial "article-meta.html" . }}
+    </div>
+    {{- if .Params.showSummary | default (.Site.Params.list.showSummary | default true) }}
+      <p class="post-card__summary">{{ .Summary | plainify | truncate 140 }}</p>
+    {{- end }}
+  </div>
+</article>

@@ -1,0 +1,16 @@
+colorScheme = "congo"
+defaultAppearance = "light"
+autoSwitchAppearance = false
+
+[homepage]
+  layout = "page"
+  showRecent = true
+  recentLimit = 12
+
+[article]
+  showTableOfContents = true
+  showTaxonomies = true
+
+[list]
+  showSummary = true
+  groupByYear = false

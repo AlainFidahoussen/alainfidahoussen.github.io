@@ -1,0 +1,13 @@
+title = "Alain Fidahoussen"
+
+[params]
+  description = "Notes on AI papers, software engineering, and things worth bookmarking."
+  mainSections = ["posts"]
+
+  [params.author]
+    name = "Alain Fidahoussen"
+    headline = "Writing about AI papers and software engineering"
+    bio = "I write about AI research papers and software engineering."
+    links = [
+      { github = "https://github.com/AlainFidahoussen" },
+    ]
