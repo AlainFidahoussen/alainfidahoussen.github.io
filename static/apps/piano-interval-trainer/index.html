@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Piano Interval Ear Trainer</title>
+<meta name="description" content="Train your ear to recognize musical intervals, played on a realistic sampled grand piano." />
+<style>
+  :root {
+    --bg: #14161c;
+    --panel: #1c1f28;
+    --panel-2: #232734;
+    --border: #333a4a;
+    --text: #e9ebf1;
+    --muted: #9aa2b4;
+    --accent: #d9a441;
+    --accent-2: #6ea8fe;
+    --good: #3fc27a;
+    --bad: #e5566d;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(1200px 800px at 50% -10%, #23283a 0%, var(--bg) 60%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  a { color: var(--accent-2); }
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 16px 60px;
+  }
+  header.top {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  header.top h1 {
+    font-size: 1.6rem;
+    margin: 0 0 6px;
+    letter-spacing: 0.2px;
+  }
+  header.top p {
+    color: var(--muted);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+  .card {
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  .card h2 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  .seg {
+    display: inline-flex;
+    background: #11131a;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px;
+  }
+  .seg button {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all .15s ease;
+  }
+  .seg button.active {
+    background: var(--accent);
+    color: #1a1408;
+    font-weight: 600;
+  }
+  .btn {
+    background: #2a2f3d;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .btn:hover { border-color: var(--accent-2); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.primary {
+    background: var(--accent);
+    color: #1a1408;
+    font-weight: 700;
+    border: none;
+  }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .quick-select {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .quick-select button {
+    font-size: 0.78rem;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: #11131a;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .quick-select button:hover { color: var(--text); border-color: var(--accent-2); }
+  .interval-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  .interval-grid.compound { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+  .chk {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #11131a;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 9px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .chk:hover { border-color: var(--accent-2); }
+  .chk input { accent-color: var(--accent); }
+  .stage {
+    text-align: center;
+    padding: 30px 18px;
+  }
+  .stage .status {
+    font-size: 0.85rem;
+    color: var(--muted);
+    min-height: 20px;
+    margin-bottom: 14px;
+  }
+  .play-btn {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #eec46b, var(--accent));
+    border: none;
+    color: #211a08;
+    font-size: 2.1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(217,164,65,0.35);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .1s ease;
+  }
+  .play-btn:hover { transform: scale(1.04); }
+  .play-btn:active { transform: scale(0.97); }
+  .play-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .replay-row {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .answers {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .answer-btn {
+    background: #11131a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    line-height: 1.25;
+    transition: all .12s ease;
+  }
+  .answer-btn strong { display: block; font-size: 0.95rem; }
+  .answer-btn:hover:not(:disabled) { border-color: var(--accent-2); background: #171a24; }
+  .answer-btn:disabled { cursor: not-allowed; }
+  .answer-btn.correct { background: rgba(63,194,122,0.18); border-color: var(--good); color: var(--good); }
+  .answer-btn.incorrect { background: rgba(229,86,109,0.18); border-color: var(--bad); color: var(--bad); }
+  .feedback {
+    margin-top: 16px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    min-height: 28px;
+  }
+  .feedback.good { color: var(--good); }
+  .feedback.bad { color: var(--bad); }
+  .scoreboard {
+    display: flex;
+    justify-content: center;
+    gap: 26px;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .scoreboard b { color: var(--text); font-size: 1rem; }
+  #keyboard-wrap {
+    overflow-x: auto;
+    padding-top: 6px;
+  }
+  #keyboard {
+    position: relative;
+    height: 130px;
+    min-width: 640px;
+    margin: 0 auto;
+  }
+  .white-key {
+    position: absolute;
+    top: 0;
+    height: 130px;
+    background: linear-gradient(180deg, #f4f1ea, #d8d3c4);
+    border: 1px solid #85807a;
+    border-radius: 0 0 5px 5px;
+    box-shadow: inset 0 -4px 6px rgba(0,0,0,0.08);
+  }
+  .black-key {
+    position: absolute;
+    top: 0;
+    height: 82px;
+    background: linear-gradient(180deg, #3a3a3e, #0c0c0e);
+    border: 1px solid #000;
+    border-radius: 0 0 4px 4px;
+    z-index: 2;
+  }
+  .white-key.lit { background: linear-gradient(180deg, #ffe9b3, #eec46b); }
+  .black-key.lit { background: linear-gradient(180deg, #6ea8fe, #2f5fb8); }
+  .white-key.lit.target, .black-key.lit.target { background: linear-gradient(180deg, #9be3b8, #3fc27a); }
+  footer.note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-top: 30px;
+    line-height: 1.6;
+  }
+  .loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,11,15,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    z-index: 50;
+    text-align: center;
+    padding: 20px;
+  }
+  .loading-overlay .btn.primary { font-size: 1rem; padding: 12px 26px; }
+  .spinner {
+    width: 30px; height: 30px;
+    border: 3px solid #333a4a;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="startOverlay">
+  <h1 style="margin:0 0 4px;">🎹 Piano Interval Ear Trainer</h1>
+  <p style="color:var(--muted); max-width:420px;">Uses a real sampled grand piano. Click start to load the piano samples and enable audio.</p>
+  <button class="btn primary" id="startBtn">Start Training</button>
+  <div id="loadingStatus" class="hidden" style="color:var(--muted); display:flex; align-items:center; gap:10px;">
+    <div class="spinner"></div> Loading piano samples…
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <h1>🎹 Piano Interval Ear Trainer</h1>
+    <p>Train your ear to recognize intervals from unison up to the 13th.</p>
+  </header>
+
+  <div class="card">
+    <h2>Playback mode</h2>
+    <div class="row" style="justify-content:space-between;">
+      <div class="seg" id="modeSeg">
+        <button data-val="harmonic" class="active">Harmonic (together)</button>
+        <button data-val="melodic">Melodic (one after another)</button>
+        <button data-val="mixed">Mixed</button>
+      </div>
+      <div class="seg" id="dirSeg">
+        <button data-val="up" class="active">Ascending</button>
+        <button data-val="down">Descending</button>
+        <button data-val="random">Random</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Intervals to practice</h2>
+    <div class="quick-select">
+      <button id="qsAll">All</button>
+      <button id="qsSimple">Simple only (≤ octave)</button>
+      <button id="qsCompound">Compound only (9th–13th)</button>
+      <button id="qsCommon">Common 12</button>
+      <button id="qsNone">Clear</button>
+    </div>
+    <div class="interval-grid" id="simpleGrid"></div>
+    <div class="interval-grid compound" id="compoundGrid"></div>
+  </div>
+
+  <div class="card stage">
+    <div class="status" id="statusLine">Click start above to begin.</div>
+    <button class="play-btn" id="playBtn" title="Play the interval">▶</button>
+    <div class="replay-row">
+      <button class="btn" id="replayNoteA">Play note 1 alone</button>
+      <button class="btn" id="replayNoteB">Play note 2 alone</button>
+      <button class="btn primary" id="nextBtn">Next question</button>
+    </div>
+
+    <div class="answers" id="answers"></div>
+
+    <div class="feedback" id="feedback"></div>
+    <div class="scoreboard">
+      <div>Score <b id="scoreVal">0 / 0</b></div>
+      <div>Streak <b id="streakVal">0</b></div>
+      <div>Best streak <b id="bestStreakVal">0</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Keyboard</h2>
+    <div id="keyboard-wrap"><div id="keyboard"></div></div>
+  </div>
+
+  <footer class="note">
+    Piano samples: Salamander Grand Piano, played back via <a href="https://tonejs.github.io/" target="_blank" rel="noopener">Tone.js</a>.<br>
+    Your progress is stored only in this browser (localStorage) — nothing is sent anywhere.
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Interval data (0 = unison ... 21 = major 13th) ----------
+  const INTERVALS = [
+    { st: 0,  name: "Unison",         short: "P1"  },
+    { st: 1,  name: "Minor 2nd",      short: "m2"  },
+    { st: 2,  name: "Major 2nd",      short: "M2"  },
+    { st: 3,  name: "Minor 3rd",      short: "m3"  },
+    { st: 4,  name: "Major 3rd",      short: "M3"  },
+    { st: 5,  name: "Perfect 4th",    short: "P4"  },
+    { st: 6,  name: "Tritone",        short: "TT"  },
+    { st: 7,  name: "Perfect 5th",    short: "P5"  },
+    { st: 8,  name: "Minor 6th",      short: "m6"  },
+    { st: 9,  name: "Major 6th",      short: "M6"  },
+    { st: 10, name: "Minor 7th",      short: "m7"  },
+    { st: 11, name: "Major 7th",      short: "M7"  },
+    { st: 12, name: "Octave",         short: "P8"  },
+    { st: 13, name: "Minor 9th",      short: "m9"  },
+    { st: 14, name: "Major 9th",      short: "M9"  },
+    { st: 15, name: "Minor 10th",     short: "m10" },
+    { st: 16, name: "Major 10th",     short: "M10" },
+    { st: 17, name: "Perfect 11th",   short: "P11" },
+    { st: 18, name: "Augmented 11th", short: "A11" },
+    { st: 19, name: "Perfect 12th",   short: "P12" },
+    { st: 20, name: "Minor 13th",     short: "m13" },
+    { st: 21, name: "Major 13th",     short: "M13" },
+  ];
+  const SIMPLE = INTERVALS.filter(i => i.st <= 12);
+  const COMPOUND = INTERVALS.filter(i => i.st > 12);
+  const COMMON_ST = new Set([0,1,2,3,4,5,6,7,8,9,10,11,12]);
+
+  const LOW_MIDI = 36;  // C2
+  const HIGH_MIDI = 96; // C7
+
+  // ---------- State ----------
+  const state = {
+    mode: "harmonic",
+    dir: "up",
+    enabled: new Set(SIMPLE.map(i => i.st).concat([...COMMON_ST])), // default: simple range enabled
+    score: 0,
+    attempts: 0,
+    streak: 0,
+    bestStreak: 0,
+    current: null, // { st, rootMidi, targetMidi, playDir }
+    answered: false,
+  };
+
+  try {
+    const saved = JSON.parse(localStorage.getItem("pianoIntervalTrainer") || "null");
+    if (saved) {
+      if (saved.mode) state.mode = saved.mode;
+      if (saved.dir) state.dir = saved.dir;
+      if (Array.isArray(saved.enabled) && saved.enabled.length) state.enabled = new Set(saved.enabled);
+      if (typeof saved.bestStreak === "number") state.bestStreak = saved.bestStreak;
+    }
+  } catch (e) { /* ignore */ }
+
+  function saveSettings() {
+    localStorage.setItem("pianoIntervalTrainer", JSON.stringify({
+      mode: state.mode,
+      dir: state.dir,
+      enabled: [...state.enabled],
+      bestStreak: state.bestStreak,
+    }));
+  }
+
+  // ---------- Audio ----------
+  let sampler = null;
+  let audioReady = false;
+
+  function midiToNote(midi) {
+    return Tone.Frequency(midi, "midi").toNote();
+  }
+
+  function initAudio() {
+    return Tone.start().then(() => {
+      return new Promise((resolve) => {
+        const reverb = new Tone.Reverb({ decay: 2.2, preDelay: 0.02, wet: 0.16 }).toDestination();
+        sampler = new Tone.Sampler({
+          urls: {
+            A0: "A0.mp3", C1: "C1.mp3", "D#1": "Ds1.mp3", "F#1": "Fs1.mp3",
+            A1: "A1.mp3", C2: "C2.mp3", "D#2": "Ds2.mp3", "F#2": "Fs2.mp3",
+            A2: "A2.mp3", C3: "C3.mp3", "D#3": "Ds3.mp3", "F#3": "Fs3.mp3",
+            A3: "A3.mp3", C4: "C4.mp3", "D#4": "Ds4.mp3", "F#4": "Fs4.mp3",
+            A4: "A4.mp3", C5: "C5.mp3", "D#5": "Ds5.mp3", "F#5": "Fs5.mp3",
+            A5: "A5.mp3", C6: "C6.mp3", "D#6": "Ds6.mp3", "F#6": "Fs6.mp3",
+            A6: "A6.mp3", C7: "C7.mp3", "D#7": "Ds7.mp3", "F#7": "Fs7.mp3",
+            A7: "A7.mp3", C8: "C8.mp3",
+          },
+          release: 1.2,
+          baseUrl: "https://tonejs.github.io/audio/salamander/",
+          onload: () => resolve(),
+        }).connect(reverb);
+      });
+    }).then(() => {
+      audioReady = true;
+    });
+  }
+
+  function playNote(midi, time, dur) {
+    sampler.triggerAttackRelease(midiToNote(midi), dur || 1.4, time);
+  }
+
+  function playCurrentQuestion() {
+    if (!audioReady || !state.current) return;
+    const { rootMidi, targetMidi, playDir } = state.current;
+    const now = Tone.now() + 0.05;
+    lightKeys([]);
+    if (playDir === "harmonic") {
+      playNote(rootMidi, now, 1.6);
+      playNote(targetMidi, now, 1.6);
+      setTimeout(() => lightKeys([{ midi: rootMidi, cls: "root" }, { midi: targetMidi, cls: "target" }]), 30);
+    } else {
+      // rootMidi is always generated as the note that should sound first:
+      // the lower pitch when ascending, the higher pitch when descending.
+      const first = rootMidi;
+      const second = targetMidi;
+      playNote(first, now, 1.0);
+      playNote(second, now + 0.85, 1.0);
+      setTimeout(() => lightKeys([{ midi: first, cls: "root" }]), 30);
+      setTimeout(() => lightKeys([{ midi: first, cls: "root" }, { midi: second, cls: "target" }]), 870);
+    }
+  }
+
+  // ---------- Question generation ----------
+  function randInt(lo, hi) { return Math.floor(Math.random() * (hi - lo + 1)) + lo; }
+
+  function pickInterval() {
+    const pool = [...state.enabled];
+    if (!pool.length) return null;
+    return pool[randInt(0, pool.length - 1)];
+  }
+
+  function newQuestion() {
+    const st = pickInterval();
+    document.getElementById("feedback").textContent = "";
+    document.getElementById("feedback").className = "feedback";
+    if (st === null) {
+      document.getElementById("statusLine").textContent = "Select at least one interval below to start.";
+      document.getElementById("playBtn").disabled = true;
+      document.getElementById("answers").innerHTML = "";
+      state.current = null;
+      lightKeys([]);
+      return;
+    }
+    document.getElementById("playBtn").disabled = false;
+
+    let playDir;
+    if (state.mode === "harmonic") playDir = "harmonic";
+    else if (state.mode === "melodic") playDir = state.dir === "random" ? (Math.random() < 0.5 ? "up" : "down") : state.dir;
+    else playDir = Math.random() < 0.5 ? "harmonic" : (state.dir === "random" ? (Math.random() < 0.5 ? "up" : "down") : state.dir);
+
+    let rootMidi, targetMidi;
+    if (playDir === "down") {
+      rootMidi = randInt(LOW_MIDI + st, HIGH_MIDI);
+      targetMidi = rootMidi - st;
+    } else {
+      rootMidi = randInt(LOW_MIDI, HIGH_MIDI - st);
+      targetMidi = rootMidi + st;
+    }
+
+    state.current = { st, rootMidi, targetMidi, playDir };
+    state.answered = false;
+    document.getElementById("statusLine").textContent =
+      playDir === "harmonic" ? "Listen: both notes together." :
+      (playDir === "up" ? "Listen: low note, then high note." : "Listen: high note, then low note.");
+
+    buildAnswerButtons();
+    lightKeys([]);
+    setTimeout(playCurrentQuestion, 150);
+  }
+
+  // ---------- Answer UI ----------
+  function buildAnswerButtons() {
+    const wrap = document.getElementById("answers");
+    wrap.innerHTML = "";
+    const pool = INTERVALS.filter(i => state.enabled.has(i.st));
+    pool.forEach(i => {
+      const b = document.createElement("button");
+      b.className = "answer-btn";
+      b.innerHTML = `<strong>${i.short}</strong>${i.name}`;
+      b.dataset.st = i.st;
+      b.addEventListener("click", () => handleAnswer(i.st, b));
+      wrap.appendChild(b);
+    });
+  }
+
+  function handleAnswer(guessSt, btnEl) {
+    if (!state.current || state.answered) return;
+    state.answered = true;
+    state.attempts++;
+    const correct = guessSt === state.current.st;
+    if (correct) {
+      state.score++;
+      state.streak++;
+      state.bestStreak = Math.max(state.bestStreak, state.streak);
+    } else {
+      state.streak = 0;
+    }
+    saveSettings();
+
+    const buttons = document.querySelectorAll(".answer-btn");
+    buttons.forEach(b => {
+      b.disabled = true;
+      if (Number(b.dataset.st) === state.current.st) b.classList.add("correct");
+      else if (b === btnEl) b.classList.add("incorrect");
+    });
+
+    const fb = document.getElementById("feedback");
+    const answerInfo = INTERVALS.find(i => i.st === state.current.st);
+    if (correct) {
+      fb.textContent = `Correct — ${answerInfo.name} (${answerInfo.short})`;
+      fb.className = "feedback good";
+    } else {
+      fb.textContent = `Not quite — that was a ${answerInfo.name} (${answerInfo.short})`;
+      fb.className = "feedback bad";
+    }
+    updateScoreboard();
+    lightKeys([
+      { midi: state.current.rootMidi, cls: "root" },
+      { midi: state.current.targetMidi, cls: "target" },
+    ]);
+  }
+
+  function updateScoreboard() {
+    document.getElementById("scoreVal").textContent = `${state.score} / ${state.attempts}`;
+    document.getElementById("streakVal").textContent = state.streak;
+    document.getElementById("bestStreakVal").textContent = state.bestStreak;
+  }
+
+  // ---------- Keyboard visualization ----------
+  const KB_LOW = 24;  // C1
+  const KB_HIGH = 108; // C8
+  const WHITE_OFFSETS = [0, 2, 4, 5, 7, 9, 11];
+  const BLACK_OFFSETS = [1, 3, 6, 8, 10];
+
+  function isWhite(midi) { return WHITE_OFFSETS.includes(midi % 12); }
+
+  function buildKeyboard() {
+    const kb = document.getElementById("keyboard");
+    kb.innerHTML = "";
+    const whites = [];
+    for (let m = KB_LOW; m <= KB_HIGH; m++) if (isWhite(m)) whites.push(m);
+    const whiteWidth = 100 / whites.length;
+
+    whites.forEach((m, idx) => {
+      const el = document.createElement("div");
+      el.className = "white-key";
+      el.dataset.midi = m;
+      el.style.left = (idx * whiteWidth) + "%";
+      el.style.width = whiteWidth + "%";
+      kb.appendChild(el);
+    });
+
+    for (let m = KB_LOW; m <= KB_HIGH; m++) {
+      if (!BLACK_OFFSETS.includes(m % 12)) continue;
+      // find index of the white key immediately before this black key
+      let whiteIdx = 0;
+      for (let i = 0; i < whites.length; i++) { if (whites[i] < m) whiteIdx = i; else break; }
+      const el = document.createElement("div");
+      el.className = "black-key";
+      el.dataset.midi = m;
+      el.style.width = (whiteWidth * 0.6) + "%";
+      el.style.left = ((whiteIdx + 1) * whiteWidth - (whiteWidth * 0.3)) + "%";
+      kb.appendChild(el);
+    }
+  }
+
+  function lightKeys(entries) {
+    document.querySelectorAll("#keyboard .lit").forEach(el => el.classList.remove("lit", "target"));
+    entries.forEach(({ midi, cls }) => {
+      const el = document.querySelector(`#keyboard [data-midi="${midi}"]`);
+      if (el) {
+        el.classList.add("lit");
+        if (cls === "target") el.classList.add("target");
+      }
+    });
+  }
+
+  // ---------- Settings UI ----------
+  function buildIntervalCheckboxes() {
+    const simpleGrid = document.getElementById("simpleGrid");
+    const compoundGrid = document.getElementById("compoundGrid");
+    simpleGrid.innerHTML = "";
+    compoundGrid.innerHTML = "";
+
+    function makeChk(interval, container) {
+      const label = document.createElement("label");
+      label.className = "chk";
+      const input = document.createElement("input");
+      input.type = "checkbox";
+      input.checked = state.enabled.has(interval.st);
+      input.addEventListener("change", () => {
+        if (input.checked) state.enabled.add(interval.st);
+        else state.enabled.delete(interval.st);
+        saveSettings();
+      });
+      label.appendChild(input);
+      const span = document.createElement("span");
+      span.textContent = `${interval.short} — ${interval.name}`;
+      label.appendChild(span);
+      container.appendChild(label);
+    }
+    SIMPLE.forEach(i => makeChk(i, simpleGrid));
+    COMPOUND.forEach(i => makeChk(i, compoundGrid));
+  }
+
+  function refreshCheckboxes() {
+    document.querySelectorAll("#simpleGrid input, #compoundGrid input").forEach((input, idx) => {
+      const interval = INTERVALS[idx];
+      input.checked = state.enabled.has(interval.st);
+    });
+  }
+
+  function setEnabled(list) {
+    state.enabled = new Set(list);
+    saveSettings();
+    refreshCheckboxes();
+  }
+
+  // ---------- Wire up controls ----------
+  document.getElementById("modeSeg").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    [...e.currentTarget.children].forEach(c => c.classList.remove("active"));
+    b.classList.add("active");
+    state.mode = b.dataset.val;
+    saveSettings();
+  });
+  document.getElementById("dirSeg").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    [...e.currentTarget.children].forEach(c => c.classList.remove("active"));
+    b.classList.add("active");
+    state.dir = b.dataset.val;
+    saveSettings();
+  });
+
+  document.getElementById("qsAll").addEventListener("click", () => setEnabled(INTERVALS.map(i => i.st)));
+  document.getElementById("qsSimple").addEventListener("click", () => setEnabled(SIMPLE.map(i => i.st)));
+  document.getElementById("qsCompound").addEventListener("click", () => setEnabled(COMPOUND.map(i => i.st)));
+  document.getElementById("qsCommon").addEventListener("click", () => setEnabled([...COMMON_ST]));
+  document.getElementById("qsNone").addEventListener("click", () => setEnabled([]));
+
+  document.getElementById("playBtn").addEventListener("click", playCurrentQuestion);
+  document.getElementById("nextBtn").addEventListener("click", newQuestion);
+  document.getElementById("replayNoteA").addEventListener("click", () => {
+    if (!state.current || !audioReady) return;
+    playNote(state.current.rootMidi, Tone.now() + 0.02, 1.2);
+  });
+  document.getElementById("replayNoteB").addEventListener("click", () => {
+    if (!state.current || !audioReady) return;
+    playNote(state.current.targetMidi, Tone.now() + 0.02, 1.2);
+  });
+
+  // ---------- Init ----------
+  function applySettingsToUI() {
+    document.querySelectorAll("#modeSeg button").forEach(b => b.classList.toggle("active", b.dataset.val === state.mode));
+    document.querySelectorAll("#dirSeg button").forEach(b => b.classList.toggle("active", b.dataset.val === state.dir));
+    updateScoreboard();
+  }
+
+  buildIntervalCheckboxes();
+  buildKeyboard();
+  applySettingsToUI();
+
+  document.getElementById("startBtn").addEventListener("click", () => {
+    document.getElementById("startBtn").classList.add("hidden");
+    document.getElementById("loadingStatus").classList.remove("hidden");
+    initAudio().then(() => {
+      document.getElementById("startOverlay").classList.add("hidden");
+      newQuestion();
+    }).catch(err => {
+      console.error(err);
+      document.getElementById("loadingStatus").textContent = "Failed to load audio. Please refresh and try again.";
+    });
+  });
+})();
+</script>
+</body>
+</html>

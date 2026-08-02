@@ -12,3 +12,8 @@
   name = "About"
   pageRef = "about"
   weight = 30
+
+[[main]]
+  name = "Ear Trainer"
+  url = "/apps/piano-interval-trainer/"
+  weight = 40
