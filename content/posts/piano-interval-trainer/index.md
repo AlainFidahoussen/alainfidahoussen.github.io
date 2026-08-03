@@ -5,6 +5,7 @@ categories: ["Music"]
 tags: ["ear-training", "piano", "web-app"]
 description: "A browser-based ear trainer that plays two piano notes and asks you to identify the interval, from unison up through the 13th."
 summary: "A small web app for training your ear to recognize musical intervals, played on a realistic sampled grand piano."
+featureAlt: "Piano Interval Ear Trainer title card with a piano keyboard, two highlighted keys a fifth apart"
 ---
 
 I built a small web app to train my ear to recognize musical intervals: it plays two notes on a realistic sampled grand piano — together or one after another — and you name the interval, from unison up through the 13th.
